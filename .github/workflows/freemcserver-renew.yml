@@ -9,6 +9,11 @@ jobs:
   renew:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    
+    # 权限设置：必须允许写入权限才能执行删除旧记录的操作
+    permissions:
+      actions: write
+      contents: read
 
     steps:
       - name: 📥 检出代码
@@ -75,4 +80,13 @@ jobs:
         with:
           name: debug-screenshots-${{ github.run_id }}
           path: "*.png"
-          retention-days: 3
+          retention-days: 1 # 既然只留3次记录，截图保留1天足矣
+
+      # ================= 🧹 核心：清理运行记录 =================
+      - name: 🗑️ 清理旧的运行记录
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0             # 不按天数保留
+          keep_minimum_runs: 3       # 严格保留最近的 3 次记录
