@@ -62,7 +62,10 @@ jobs:
           nohup ./gost -L http://:8080 -F "$GOST_PROXY" > gost.log 2>&1 &
           sleep 3
           echo "✅ GOST 已启动，测试连通性..."
-          curl -s -x http://127.0.0.1:8080 https://api.ipify.org
+          # 获取 IP 后通过 sed 隐藏后两位段
+          RAW_IP=$(curl -s -x http://127.0.0.1:8080 https://api.ipify.org)
+          MASKED_IP=$(echo $RAW_IP | sed 's/\.[0-9]\+\.[0-9]\+$/.*.*/')
+          echo "🌐 当前代理出口 IP: $MASKED_IP"
 
       - name: 🚀 运行续期脚本
         env:
